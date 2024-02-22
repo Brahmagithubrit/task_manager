@@ -30,6 +30,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> list = [];
 
+  TimeOfDay selectedtime= TimeOfDay.now();
+
+
+
+  Future<void > selecttime(BuildContext context )async{
+    final TimeOfDay? picked=await showTimePicker(context: context, initialTime: selectedtime);
+    if(picked!=null && picked != selectedtime){
+      setState(() {
+        selectedtime=picked;
+
+      });
+    }
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,25 +54,30 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/back.jpg"),
-            fit: BoxFit.cover,
-          ),
+          gradient: LinearGradient(colors: [
+            Colors.blue,
+            Colors.purpleAccent
+          ])
         ),
         child: ListView.builder(
+
+
           itemBuilder: (context, index) {
             return Dismissible(
               background: Container(
                 margin: EdgeInsets.symmetric(vertical: 5.0),
                 decoration: BoxDecoration(
-                  color: Colors.blue, // Move the color to the BoxDecoration
+                  color: Colors.blue,
                   border: Border.all(
                     color: Colors.black,
                     width: 2.0, // Reduce the width of the border
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.delete, size: 20),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 360),
+                  child: const Icon(Icons.delete, size: 20 ),
+                ),
               ),
               key: ValueKey<int>(list[index].hashCode),
               onDismissed: (direction) {
@@ -65,8 +86,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
               child: ListTile(
-                title: Text(list[index]),
+
+                title: Column(
+
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.double_arrow),
+                        SizedBox(width: 30,),
+                        Text(list[index] ,style: TextStyle(fontSize: 20 , fontWeight: FontWeight.bold),),
+                        Text( "   ${selectedtime.format(context)} ",  style: TextStyle(fontWeight: FontWeight.bold , fontSize: 20),),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 170.0),
+                          child: Icon(Icons.arrow_back),
+                        )
+                      ],
+
+                    ),
+                     Text("---------------------------------------------------------------------------" , style: TextStyle(color: Colors.black.withOpacity(0.5)),)
+                  ],
+                ),
+
               ),
+
             );
           },
           itemCount: list.length,
@@ -80,7 +122,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
   void showAddTaskDialog(BuildContext context) {
     String newTask = '';
     showDialog(
@@ -88,15 +129,24 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return AlertDialog(
           title: Text("Add Task"),
-          content: Container(
-            height: 40,
-            width: 40,
-            child: TextField(
-              onChanged: (value) {
-                newTask = value;
-              },
-              decoration: InputDecoration(hintText: 'Enter task'),
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // Setting mainAxisSize to min to reduce the dialog size
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  newTask = value;
+                },
+                decoration: InputDecoration(hintText: 'Enter task'),
+              ),
+              SizedBox(height: 20), // Adding some space between TextField and ElevatedButton
+              ElevatedButton(
+                onPressed: () {
+                  selecttime(context);
+                },
+                child: Text("Select Time"),
+              )
+            ],
           ),
           actions: [
             TextButton(
@@ -121,4 +171,5 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
+
 }
